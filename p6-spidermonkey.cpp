@@ -248,19 +248,19 @@ extern "C"
     }
 
 
-    JSRuntime* p6sm_new_runtime(long memory)
+    JSRuntime* p6sm_runtime_new(long memory)
     {
         SPIDERMONKEY_INIT;
         return JS_NewRuntime(memory _SPIDERMONKEY_PARAM_THREADS);
     }
 
-    void p6sm_free_runtime(JSRuntime* rt)
+    void p6sm_runtime_free(JSRuntime* rt)
     {
         JS_DestroyRuntime(rt);
     }
 
 
-    Context* p6sm_new_context(JSRuntime* rt, int stack_size)
+    Context* p6sm_context_new(JSRuntime* rt, int stack_size)
     {
         try
         {
@@ -274,7 +274,7 @@ extern "C"
         return NULL;
     }
 
-    void p6sm_free_context(Context* cx)
+    void p6sm_context_free(Context* cx)
     {
         delete cx;
     }

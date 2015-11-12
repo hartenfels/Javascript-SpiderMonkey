@@ -82,30 +82,30 @@ class Value is repr('CPointer')
 
 our class Runtime is repr('CPointer')
 {
-    sub p6sm_new_runtime(long --> Runtime)
+    sub p6sm_runtime_new(long --> Runtime)
         is native('libp6-spidermonkey') { * }
 
-    sub p6sm_free_runtime(Runtime)
+    sub p6sm_runtime_free(Runtime)
         is native('libp6-spidermonkey') { * }
 
     method new(long $memory = 8 * 1024 ** 2 --> Runtime:D)
     {
-        return p6sm_new_runtime($memory):
+        return p6sm_runtime_new($memory):
     }
 
     method DESTROY
     {
-        p6sm_free_runtime(self);
+        p6sm_runtime_free(self);
     }
 }
 
 
 our class Context is repr('CPointer')
 {
-    sub p6sm_new_context(Runtime, int32 --> Context)
+    sub p6sm_context_new(Runtime, int32 --> Context)
         is native('libp6-spidermonkey') { * }
 
-    sub p6sm_free_context(Context)
+    sub p6sm_context_free(Context)
         is native('libp6-spidermonkey') { * }
 
     sub p6sm_eval(Context, Str, Str, int32 --> Value)
@@ -114,7 +114,7 @@ our class Context is repr('CPointer')
 
     method new(Runtime:D $rt, int32 $stack_size = 8192 --> Context:D)
     {
-        return p6sm_new_context($rt, $stack_size);
+        return p6sm_context_new($rt, $stack_size);
     }
 
 
@@ -134,7 +134,7 @@ our class Context is repr('CPointer')
 
     method DESTROY
     {
-        p6sm_free_context(self);
+        p6sm_context_free(self);
     }
 }
 
