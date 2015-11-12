@@ -80,7 +80,7 @@ class Value is repr('CPointer')
 }
 
 
-class Runtime is repr('CPointer')
+our class Runtime is repr('CPointer')
 {
     sub p6sm_new_runtime(long --> Runtime)
         is native('libp6-spidermonkey') { * }
@@ -100,7 +100,7 @@ class Runtime is repr('CPointer')
 }
 
 
-class Context is repr('CPointer')
+our class Context is repr('CPointer')
 {
     sub p6sm_new_context(Runtime, int32 --> Context)
         is native('libp6-spidermonkey') { * }
@@ -143,11 +143,21 @@ my Runtime $default_runtime;
 my Context $default_context;
 
 
-my $js = Context.new(Runtime.new);
-say $js.eval('car = {}; car.seats = "leather"; car.plates = true; car');
-say $js.eval('car.seats');
-say $js.eval('car.plates');
-$js.eval('doit();');
+sub js(--> Context:D)
+{
+    $default_context = Context.new(Runtime.new) unless $default_context;
+    return $default_context;
+}
+
+our sub js-eval(Str $code, Str $file = 'eval', Int $line = 1) is export
+{
+    return js.eval($code, $file, $line);
+}
+
+our sub js-do(Cool $path) is export
+{
+    return js.do($path);
+}
 
 
 =begin pod
