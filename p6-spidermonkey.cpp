@@ -38,6 +38,19 @@ static JSClass global_class = {
 };
 
 
+static JSBool dispatch(JSContext* context, unsigned int argc, JS::Value* vp)
+{
+    JS::CallArgs args = CallArgsFromVp(argc, vp);
+
+    JSFunction* fun = JS_ValueToFunction(context, args.calleev());
+    char* name = JS_EncodeStringToUTF8(context, JS_GetFunctionId(fun));
+    std::cerr << name << '\n';
+    JS_free(context, name);
+
+    return true;
+}
+
+
 /* Simple auto pointer that calls `delete` on abnormal scope exit. */
 template <typename T> class Auto
 {
@@ -152,19 +165,6 @@ public:
 private:
     char* strval = NULL;
 };
-
-
-static JSBool dispatch(JSContext* context, unsigned int argc, JS::Value* vp)
-{
-    JS::CallArgs args = CallArgsFromVp(argc, vp);
-
-    JSFunction* fun = JS_ValueToFunction(context, args.calleev());
-    char* name = JS_EncodeStringToUTF8(context, JS_GetFunctionId(fun));
-    std::cerr << name << '\n';
-    JS_free(context, name);
-
-    return true;
-}
 
 
 class Context
