@@ -83,7 +83,7 @@ public:
     {
         switch (JS_TypeOfValue(context, rval))
         {
-            case JSTYPE_VOID    : return "void";
+            case JSTYPE_VOID    : return "undefined";
             case JSTYPE_OBJECT  : return "object";
             case JSTYPE_FUNCTION: return "function";
             case JSTYPE_STRING  : return "string";
