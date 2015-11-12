@@ -22,6 +22,9 @@ class Value is repr('CPointer')
     sub p6sm_value_at_key(Value, Str --> Value)
         is native('libp6-spidermonkey') { * }
 
+    sub p6sm_value_at_pos(Value, uint32 --> Value)
+        is native('libp6-spidermonkey') { * }
+
 
     method type(Value:D: --> Str)
     {
@@ -61,7 +64,12 @@ class Value is repr('CPointer')
 
     method AT-KEY(Value:D: $key --> Value:D)
     {
-        return p6sm_value_at_key(self, $key) // fail;
+        return p6sm_value_at_key(self, ~$key) // fail;
+    }
+
+    method AT-POS(Value:D: $key --> Value:D)
+    {
+        return p6sm_value_at_pos(self, +$key) // fail;
     }
 
 

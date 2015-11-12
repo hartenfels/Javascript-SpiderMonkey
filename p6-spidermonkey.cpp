@@ -132,6 +132,23 @@ public:
     }
 
 
+    Value* at_pos(uint32_t pos)
+    {
+        if (!rval.isObject())
+            return NULL;
+
+        JSObject* obj;
+        if (!JS_ValueToObject(context, rval, &obj))
+            return NULL;
+
+        Auto<Value> out(new Value(context));
+        if (JS_GetElement(context, obj, pos, SPIDERMONKEY_ADDRESS(out->rval)))
+            return out.ret();
+
+        return NULL;
+    }
+
+
 private:
     char* strval = NULL;
 };
@@ -305,5 +322,10 @@ extern "C"
     Value* p6sm_value_at_key(Value* val, const char* key)
     {
         return val->at_key(key);
+    }
+
+    Value* p6sm_value_at_pos(Value* val, uint32_t pos)
+    {
+        return val->at_pos(pos);
     }
 }
