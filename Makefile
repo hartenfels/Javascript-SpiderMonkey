@@ -1,3 +1,7 @@
+test: libp6-spidermonkey.so
+	LD_LIBRARY_PATH=. PERL6LIB=lib prove -ve perl6
+
+
 libp6-spidermonkey.so: p6-spidermonkey.cpp
 	g++ -Wall -Wshadow -pedantic -pedantic-errors \
 		-isystem /usr/include/mozjs-24 $< -DSPIDERMONKEY_VERSION=24 \
@@ -6,3 +10,6 @@ libp6-spidermonkey.so: p6-spidermonkey.cpp
 
 README.md: lib/JavaScript/SpiderMonkey.pm6
 	perl6 --doc=Markdown $< > $@
+
+
+.PHONY: test
