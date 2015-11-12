@@ -12,7 +12,9 @@ TODO
 
   * Use LibraryMake and compile this sanely
 
-  * Write tests
+  * Write more tests
+
+  * Put this on TravisCI and test multiple SpiderMonkey versions
 
   * Call JavaScript from Perl6
 

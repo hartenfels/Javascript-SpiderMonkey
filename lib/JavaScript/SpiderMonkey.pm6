@@ -171,7 +171,8 @@ JavaScript::SpiderMonkey - use Mozilla's JavaScript interpreter from Perl 6
 =item Handle and show errors properly
 =item Implement console.log and friends, maybe in JavaScript
 =item Use LibraryMake and compile this sanely
-=item Write tests
+=item Write more tests
+=item Put this on TravisCI and test multiple SpiderMonkey versions
 =item Call JavaScript from Perl6
 =item Call Perl6 from JavaScript somehow
 =item Add documentation
