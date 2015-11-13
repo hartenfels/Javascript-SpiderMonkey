@@ -7,14 +7,20 @@ constant \Runtime := JavaScript::SpiderMonkey::Runtime;
 constant \Context := JavaScript::SpiderMonkey::Context;
 
 
-my Runtime $default_runtime;
-my Context $default_context;
+my Runtime $default-runtime;
+my Context $default-context;
 
+
+our sub js-runtime(--> Runtime:D)
+{
+    $default-runtime = Runtime.new unless $default-runtime;
+    return $default-runtime;
+}
 
 our sub js-context(--> Context:D)
 {
-    $default_context = Context.new(Runtime.new) unless $default_context;
-    return $default_context;
+    $default-context = Context.new(js-runtime) unless $default-context;
+    return $default-context;
 }
 
 our sub js-eval(Str $code, Str $file = 'eval', Int $line = 1) is export
