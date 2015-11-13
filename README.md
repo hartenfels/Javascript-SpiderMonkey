@@ -6,7 +6,7 @@ JavaScript::SpiderMonkey - use Mozilla's JavaScript interpreter from Perl 6
 TODO
 ====
 
-  * Handle and show errors properly
+  * Nicer errors
 
   * Implement console.log and friends, maybe in JavaScript
 

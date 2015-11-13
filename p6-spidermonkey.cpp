@@ -1,7 +1,8 @@
 #include <jsapi.h>
 #include <cstring>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
+#include <string>
 namespace perl6_spidermonkey
 {
 
@@ -128,13 +129,39 @@ public:
     }
 
 
-    Value* at_key(const char* key)
+    bool accessible()
+    {
+        return rval.isObject() && !rval.isNull();
+    }
+
+
+    JSObject* to_object(const char* fun)
     {
         if (!rval.isObject())
+        {
+            JS_ReportError(context, "%s: not an object", fun);
             return NULL;
+        }
 
         JSObject* obj;
         if (!JS_ValueToObject(context, rval, &obj))
+            return NULL;
+
+        if (!obj)
+        {
+            JS_ReportError(context, "%s: object is null", fun);
+            return NULL;
+        }
+
+        return obj;
+    }
+
+
+    Value* at_key(const char* key)
+    {
+        JSObject* obj = to_object("AT-KEY");
+
+        if (!obj)
             return NULL;
 
         Auto<Value> out(new Value(context));
@@ -147,11 +174,9 @@ public:
 
     Value* at_pos(uint32_t pos)
     {
-        if (!rval.isObject())
-            return NULL;
+        JSObject* obj = to_object("AT-POS");
 
-        JSObject* obj;
-        if (!JS_ValueToObject(context, rval, &obj))
+        if (!obj)
             return NULL;
 
         Auto<Value> out(new Value(context));
@@ -167,15 +192,34 @@ private:
 };
 
 
+struct Error
+{
+    bool         handled;
+    std::string  message;
+    std::string  file;
+    unsigned int line;
+    unsigned int column;
+};
+
+
 class Context
 {
 public:
-
     Context(JSRuntime* rt, size_t stack_size)
     {
+        error.handled = true;
+
         context = JS_NewContext(rt, stack_size);
         if (!context)
             throw std::runtime_error("can't create context");
+
+        JS_SetContextPrivate(context, this);
+        /* FIXME maybe?
+         * JS_SetErrorReport is documented to take a JSRuntime* as its
+         * first argument, but it totally doesn't. Maybe it got changed
+         * in a later version, in which case this needs to be ifdef'd.
+         */
+        JS_SetErrorReporter(context, Context::on_error);
 
         JSObject* gobj = JS_NewGlobalObject(context, &global_class, NULL
                                             _SPIDERMONKEY_PARAM_FIRE);
@@ -199,7 +243,9 @@ public:
     ~Context()
     {
         if (context)
+        {
             JS_DestroyContext(context);
+        }
         delete global;
     }
 
@@ -219,14 +265,45 @@ public:
 #     endif
                           script, std::strlen(script), file,
                           line, SPIDERMONKEY_ADDRESS(val->rval));
+        return ok ? val.ret() : NULL;
+    }
 
-        return val.ret();
+
+    static void on_error(JSContext* context, const char* msg, JSErrorReport* report)
+    {
+        if (report->flags & JSREPORT_WARNING)
+        {
+            std::cerr << msg << '\n';
+        }
+        else
+        {
+            Context* cx = static_cast<Context*>(JS_GetContextPrivate(context));
+            if (!cx->error.handled)
+            {
+                std::cerr << "JavaScript::Spidermonkey: Whoa, unhandled error!\n"
+                          << cx->error.message << '\n';
+            }
+            cx->error.handled = false;
+            cx->error.message = msg;
+            cx->error.file    = report->filename ? report->filename : "";
+            cx->error.line    = report->lineno;
+            cx->error.column  = report->column;
+        }
+    }
+
+    Error* get_error()
+    {
+        if (error.handled)
+            return NULL;
+        error.handled = true;
+        return &error;
     }
 
 
 private:
     JSContext       * context = NULL;
     JS::RootedObject* global  = NULL;
+    Error             error;
 };
 
 
@@ -260,6 +337,12 @@ extern "C"
     }
 
 
+    const char*  p6sm_error_message(Error* e) { return e->message.c_str(); }
+    const char*  p6sm_error_file   (Error* e) { return e->file.c_str();    }
+    unsigned int p6sm_error_line   (Error* e) { return e->line;            }
+    unsigned int p6sm_error_column (Error* e) { return e->column;          }
+
+
     Context* p6sm_context_new(JSRuntime* rt, int stack_size)
     {
         try
@@ -279,6 +362,11 @@ extern "C"
         delete cx;
     }
 
+    Error* p6sm_context_error(Context* cx)
+    {
+        return cx->get_error();
+    }
+
     Value* p6sm_eval(Context   * cx,
                      const char* script,
                      const char* file,
@@ -291,6 +379,12 @@ extern "C"
     void p6sm_value_free(Value* val)
     {
         delete val;
+    }
+
+    Error* p6sm_value_error(Value* val)
+    {
+        Context* cx = static_cast<Context*>(JS_GetContextPrivate(val->context));
+        return cx->get_error();
     }
 
     const char* p6sm_value_type(Value* val)
@@ -317,6 +411,11 @@ extern "C"
             return 1;
         }
         return 0;
+    }
+
+    int p6sm_value_accessible(Value* val)
+    {
+        return val->accessible();
     }
 
     Value* p6sm_value_at_key(Value* val, const char* key)
