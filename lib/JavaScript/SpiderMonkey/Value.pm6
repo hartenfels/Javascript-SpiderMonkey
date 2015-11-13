@@ -1,0 +1,96 @@
+unit class JavaScript::SpiderMonkey::Value is repr('CPointer');
+use NativeCall;
+use JavaScript::SpiderMonkey::Error;
+
+
+constant \Error := JavaScript::SpiderMonkey::Error;
+constant \Value := JavaScript::SpiderMonkey::Value;
+
+
+sub p6sm_value_free(Value)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_error(Value --> Error)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_type(Value --> Str)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_str(Value --> Str)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_num(Value, num64 is rw --> int32)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_bool(Value, int32 is rw --> int32)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_accessible(Value --> int32)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_at_key(Value, Str --> Value)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_value_at_pos(Value, uint32 --> Value)
+    is native('libp6-spidermonkey') { * }
+
+
+method error()
+{
+    return p6sm_value_error(self).to-exception;
+}
+
+
+method type(Value:D: --> Str)
+{
+    return p6sm_value_type(self);
+}
+
+method Str(Value:D: --> Str)
+{
+    return p6sm_value_str(self);
+}
+
+method Num(Value:D: --> Num)
+{
+    my num64 $number;
+    return $number if p6sm_value_num(self, $number);
+    fail self.error;
+}
+
+method Bool(Value:D: --> Bool)
+{
+    my int32 $bool;
+    return ?$bool if p6sm_value_bool(self, $bool);
+    fail self.error;
+}
+
+method gist(Value:D: --> Str)
+{
+    given self.type
+    {
+        return  ~self when 'string';
+        return ~+self when 'number';
+        return ~?self when 'boolean';
+        return "[$_]";
+    }
+}
+
+
+method AT-KEY(Value:D: $key --> Value:D)
+{
+    PRE { p6sm_value_accessible(self) }
+    return p6sm_value_at_key(self, ~$key) // fail self.error;
+}
+
+method AT-POS(Value:D: $key --> Value:D)
+{
+    PRE { p6sm_value_accessible(self) }
+    return p6sm_value_at_pos(self, +$key) // fail self.error;
+}
+
+
+method DESTROY
+{
+    p6sm_value_free(self);
+}
