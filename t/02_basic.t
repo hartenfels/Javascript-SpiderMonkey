@@ -49,4 +49,8 @@ for $car<doors>
 }
 
 
+is $car<nonexistent>.type, 'undefined', 'referencing nonexistent object key';
+is $car[0].type, 'undefined', 'referencing array element on non-array';
+
+
 done-testing
