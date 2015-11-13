@@ -15,31 +15,31 @@ my $car = js-eval('car');
 is $car.type, 'object', 'referencing evaled object';
 
 
-for $car<seats>
+given $car<seats>
 {
     is .type, 'string',  'referencing string property';
     is .Str,  'leather', 'string property has right content';
 }
 
 
-for $car<plates>
+given $car<plates>
 {
     is .type, 'boolean', 'referencing boolean property';
     is .Bool,  True,     'boolean property has right content';
 }
 
 
-for $car<doors>
+given $car<doors>
 {
     is .type, 'object', 'referencing array property';
 
-    for .[0]
+    given .[0]
     {
         is .type, 'number', 'referencing number in array';
         cmp-ok .Num, '==', 1, 'number has right content';
     }
 
-    for .[1]
+    given .[1]
     {
         is .type, 'number', 'another number in array';
         cmp-ok .Num, '==', 2.3, 'also has right content';
