@@ -25,6 +25,9 @@ sub p6sm_value_num(Value, num64 is rw --> int32)
 sub p6sm_value_bool(Value, int32 is rw --> int32)
     is native('libp6-spidermonkey') { * }
 
+sub p6sm_value_call(Value, uint32, CArray[OpaquePointer] --> Value)
+    is native('libp6-spidermonkey') { * }
+
 sub p6sm_value_accessible(Value --> int32)
     is native('libp6-spidermonkey') { * }
 
@@ -33,6 +36,11 @@ sub p6sm_value_at_key(Value, Str --> Value)
 
 sub p6sm_value_at_pos(Value, uint32 --> Value)
     is native('libp6-spidermonkey') { * }
+
+
+our proto sub convert($v --> Value:D) { * }
+
+multi sub convert(Value:D $v) { $v }
 
 
 method error()
@@ -74,6 +82,17 @@ method gist(Value:D: --> Str)
         return ~?self when 'boolean';
         return "[$_]";
     }
+}
+
+
+method CALL-ME(Value:D: *@args)
+{
+    fail "JavaScript doesn't support named arguments" if %_;
+
+    my $values = CArray[OpaquePointer].new;
+    -> $i, $arg { $values[$i] = convert($arg) } for kv @args;
+
+    return p6sm_value_call(self, @args.elems, $values) // fail self.error;
 }
 
 

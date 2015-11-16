@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 namespace perl6_spidermonkey
 {
 
@@ -160,7 +161,6 @@ public:
     Value* at_key(const char* key)
     {
         JSObject* obj = to_object("AT-KEY");
-
         if (!obj)
             return NULL;
 
@@ -269,6 +269,37 @@ public:
     }
 
 
+    Value* call(Value* val, unsigned int argc, Value* argv)
+    {
+        JSObject* obj = val->to_object("CALL-ME");
+        if (!obj)
+            return NULL;
+
+        std::vector<JS::Value> args;
+        for (unsigned int i = 0; i < argc; ++i)
+            args.push_back(argv[i].rval.get());
+
+        Auto<Value> out(new Value(context));
+        bool ok;
+
+        {
+            JSAutoCompartment ac(context, *global);
+            ok = JS_CallFunctionValue(context, obj,
+                                      *SPIDERMONKEY_ADDRESS(val->rval),
+                                      argc, argc ? &args[0] : NULL,
+                                      SPIDERMONKEY_ADDRESS(out->rval));
+        }
+
+        return ok ? out.ret() : NULL;
+    }
+
+
+    static Context* from_js(JSContext* context)
+    {
+        return static_cast<Context*>(JS_GetContextPrivate(context));
+    }
+
+
     static void on_error(JSContext* context, const char* msg, JSErrorReport* report)
     {
         if (report->flags & JSREPORT_WARNING)
@@ -277,7 +308,7 @@ public:
         }
         else
         {
-            Context* cx = static_cast<Context*>(JS_GetContextPrivate(context));
+            Context* cx = Context::from_js(context);
             if (!cx->error.handled)
             {
                 std::cerr << "JavaScript::Spidermonkey: Whoa, unhandled error!\n"
@@ -383,7 +414,7 @@ extern "C"
 
     Error* p6sm_value_error(Value* val)
     {
-        Context* cx = static_cast<Context*>(JS_GetContextPrivate(val->context));
+        Context* cx = Context::from_js(val->context);
         return cx->get_error();
     }
 
@@ -411,6 +442,12 @@ extern "C"
             return 1;
         }
         return 0;
+    }
+
+    Value* p6sm_value_call(Value* val, unsigned int argc, Value* argv)
+    {
+        Context* cx = Context::from_js(val->context);
+        return cx->call(val, argc, argv);
     }
 
     int p6sm_value_accessible(Value* val)
