@@ -38,18 +38,21 @@ our sub js-do(Cool $path) is export
 
 =head1 NAME
 
-JavaScript::SpiderMonkey - use Mozilla's JavaScript interpreter from Perl 6
+JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 
 =head1 TODO
 
-=item Nicer errors
-=item Implement console.log and friends, maybe in JavaScript
-=item Use LibraryMake and compile this sanely
-=item Write more tests
-=item Put this on TravisCI and test multiple SpiderMonkey versions
-=item Call JavaScript from Perl6
-=item Call Perl6 from JavaScript somehow
-=item Add documentation
+=item1 Nicer errors
+=item1 Implement console.log and friends
+=item1 Use LibraryMake and compile this sanely
+=item1 Write more tests
+=item1 Put this on TravisCI and test multiple SpiderMonkey versions
+=item1 Calling JavaScript from Perl6:
+=item2 → Convert Perl6 arguments to JavaScript values
+=item2 → Call methods on JavaScript objects
+=item2 → Also allow calling things on the global object
+=item1 Call Perl6 from JavaScript somehow (ask on #perl6)
+=item1 Add documentation
 
 =head1 AUTHOR
 

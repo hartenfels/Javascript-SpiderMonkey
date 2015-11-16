@@ -1,14 +1,14 @@
 NAME
 ====
 
-JavaScript::SpiderMonkey - use Mozilla's JavaScript interpreter from Perl 6
+JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 
 TODO
 ====
 
   * Nicer errors
 
-  * Implement console.log and friends, maybe in JavaScript
+  * Implement console.log and friends
 
   * Use LibraryMake and compile this sanely
 
@@ -16,9 +16,15 @@ TODO
 
   * Put this on TravisCI and test multiple SpiderMonkey versions
 
-  * Call JavaScript from Perl6
+  * Calling JavaScript from Perl6:
 
-  * Call Perl6 from JavaScript somehow
+  * → Convert Perl6 arguments to JavaScript values
+
+  * → Call methods on JavaScript objects
+
+  * → Also allow calling things on the global object
+
+  * Call Perl6 from JavaScript somehow (ask on #perl6)
 
   * Add documentation
 
