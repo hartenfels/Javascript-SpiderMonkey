@@ -8,27 +8,27 @@ namespace perl6_spidermonkey
 {
 
 
-#ifndef SPIDERMONKEY_VERSION
-#   error "You need to set SPIDERMONKEY_VERSION"
+#ifndef P6SM_VERSION
+#   error "You need to set P6SM_VERSION"
 #endif
 
-#if SPIDERMONKEY_VERSION <= 24
-#   define  SPIDERMONKEY_INIT          /* JS_Init() doesn't exist */
-#   define _SPIDERMONKEY_PARAM_THREADS ,JS_USE_HELPER_THREADS
-#   define _SPIDERMONKEY_PARAM_FIRE    /* parameter doesn't exist */
-#   define  SPIDERMONKEY_ADDRESS(X)    (X).address()
+#if P6SM_VERSION <= 24
+#   define  P6SM_INIT          /* JS_Init() doesn't exist */
+#   define _P6SM_PARAM_THREADS ,JS_USE_HELPER_THREADS
+#   define _P6SM_PARAM_FIRE    /* parameter doesn't exist */
+#   define  P6SM_ADDRESS(X)    (X).address()
 #else
-#   define  SPIDERMONKEY_INIT          JS_Init()
-#   define _SPIDERMONKEY_PARAM_THREADS /* parameter removed */
-#   define _SPIDERMONKEY_PARAM_FIRE    ,JS::FireOnNewGlobalHook
-#   define  SPIDERMONKEY_ADDRESS(X)    &(X)
+#   define  P6SM_INIT          JS_Init()
+#   define _P6SM_PARAM_THREADS /* parameter removed */
+#   define _P6SM_PARAM_FIRE    ,JS::FireOnNewGlobalHook
+#   define  P6SM_ADDRESS(X)    &(X)
 #endif
 
 
 static JSClass global_class = {
     "global",
     JSCLASS_GLOBAL_FLAGS,
-# if SPIDERMONKEY_VERSION < 38
+# if P6SM_VERSION < 38
     JS_PropertyStub,
     JS_DeletePropertyStub,
     JS_PropertyStub,
@@ -180,7 +180,7 @@ struct Value
             return NULL;
 
         Auto<Value> out(new Value(context));
-        if (JS_GetProperty(context, obj, key, SPIDERMONKEY_ADDRESS(out->rval)))
+        if (JS_GetProperty(context, obj, key, P6SM_ADDRESS(out->rval)))
             return out.ret();
 
         return NULL;
@@ -195,7 +195,7 @@ struct Value
             return NULL;
 
         Auto<Value> out(new Value(context));
-        if (JS_GetElement(context, obj, pos, SPIDERMONKEY_ADDRESS(out->rval)))
+        if (JS_GetElement(context, obj, pos, P6SM_ADDRESS(out->rval)))
             return out.ret();
 
         return NULL;
@@ -237,7 +237,7 @@ struct Context
         JS_SetErrorReporter(context, Context::on_error);
 
         JSObject* gobj = JS_NewGlobalObject(context, &global_class, NULL
-                                            _SPIDERMONKEY_PARAM_FIRE);
+                                            _P6SM_PARAM_FIRE);
         global = new JS::RootedObject(context, gobj);
         if (!*global)
             throw std::runtime_error("can't create global object");
@@ -272,7 +272,7 @@ struct Context
 
         {
             JSAutoCompartment ac(context, *global);
-#         if SPIDERMONKEY_VERSION < 38
+#         if P6SM_VERSION < 38
             ok = JS_EvaluateScript(context, *global,
 #         else
             JS::CompileOptions opts(context);
@@ -280,7 +280,7 @@ struct Context
             ok = JS::Evaluate(context, *global, opts,
 #         endif
                               script, std::strlen(script), file,
-                              line, SPIDERMONKEY_ADDRESS(val->rval));
+                              line, P6SM_ADDRESS(val->rval));
         }
 
         return ok ? val.ret() : NULL;
@@ -302,10 +302,9 @@ struct Context
 
         {
             JSAutoCompartment ac(context, *global);
-            ok = JS_CallFunctionValue(context, obj,
-                                      *SPIDERMONKEY_ADDRESS(val->rval),
+            ok = JS_CallFunctionValue(context, obj, *P6SM_ADDRESS(val->rval),
                                       argc, argc ? &args[0] : NULL,
-                                      SPIDERMONKEY_ADDRESS(out->rval));
+                                      P6SM_ADDRESS(out->rval));
         }
 
         return ok ? out.ret() : NULL;
@@ -359,7 +358,7 @@ extern "C"
 {
     int p6sm_version()
     {
-        return SPIDERMONKEY_VERSION;
+        return P6SM_VERSION;
     }
 
     void p6sm_shutdown()
@@ -370,8 +369,8 @@ extern "C"
 
     JSRuntime* p6sm_runtime_new(long memory)
     {
-        SPIDERMONKEY_INIT;
-        return JS_NewRuntime(memory _SPIDERMONKEY_PARAM_THREADS);
+        P6SM_INIT;
+        return JS_NewRuntime(memory _P6SM_PARAM_THREADS);
     }
 
     void p6sm_runtime_free(JSRuntime* rt)
