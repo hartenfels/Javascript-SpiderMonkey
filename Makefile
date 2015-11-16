@@ -9,7 +9,7 @@ libp6-spidermonkey.so: p6-spidermonkey.cpp
 
 
 README.md: lib/JavaScript/SpiderMonkey.pm6
-	perl6 --doc=Markdown $< > $@
+	PERL6LIB=lib perl6 --doc=Markdown $< > $@
 
 
 .PHONY: test
