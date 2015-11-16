@@ -84,6 +84,7 @@ public:
 
     JSContext*      context;
     JS::RootedValue rval;
+    char*           strval = NULL;
 
 
     Value(JSContext* ctx) : context(ctx), rval(ctx) {}
@@ -185,10 +186,6 @@ public:
 
         return NULL;
     }
-
-
-private:
-    char* strval = NULL;
 };
 
 
@@ -205,6 +202,11 @@ struct Error
 class Context
 {
 public:
+    JSContext       * context = NULL;
+    JS::RootedObject* global  = NULL;
+    Error             error;
+
+
     Context(JSRuntime* rt, size_t stack_size)
     {
         error.handled = true;
@@ -332,12 +334,6 @@ public:
         error.handled = true;
         return &error;
     }
-
-
-private:
-    JSContext       * context = NULL;
-    JS::RootedObject* global  = NULL;
-    Error             error;
 };
 
 
