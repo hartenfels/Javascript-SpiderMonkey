@@ -1,6 +1,6 @@
 sudo: false
 language: perl6
 install:
-    - make lib-mozjs24
+    - make mozjs-24.2.0/js/src/dist
 script:
     - make test-mozjs24
