@@ -252,19 +252,22 @@ public:
 
     Value* eval(const char* script, const char* file, int line)
     {
-        JSAutoCompartment ac(context, *global);
         Auto<Value> val(new Value(context));
-
         bool ok;
-#     if SPIDERMONKEY_VERSION < 38
-        ok = JS_EvaluateScript(context, *global,
-#     else
-        JS::CompileOptions opts(context);
-        opts.setFileAndLine(filename, lineno);
-        ok = JS::Evaluate(context, *global, opts,
-#     endif
-                          script, std::strlen(script), file,
-                          line, SPIDERMONKEY_ADDRESS(val->rval));
+
+        {
+            JSAutoCompartment ac(context, *global);
+#         if SPIDERMONKEY_VERSION < 38
+            ok = JS_EvaluateScript(context, *global,
+#         else
+            JS::CompileOptions opts(context);
+            opts.setFileAndLine(filename, lineno);
+            ok = JS::Evaluate(context, *global, opts,
+#         endif
+                              script, std::strlen(script), file,
+                              line, SPIDERMONKEY_ADDRESS(val->rval));
+        }
+
         return ok ? val.ret() : NULL;
     }
 
