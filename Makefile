@@ -1,16 +1,12 @@
-test-mozjs24: mozjs-24.2.0/js/src/dist
-	if [ ! -e libp6-spidermonkey.so ]; then make lib-mozjs24; fi
-	LD_LIBRARY_PATH=".:$</lib" PERL6LIB=lib prove -ve perl6
+test-mozjs24: libp6-spidermonkey.so
+	LD_LIBRARY_PATH=".:mozjs-24.2.0/js/src/dist/lib" PERL6LIB=lib prove -ve perl6
 
-
-lib-mozjs24: mozjs-24.2.0/js/src/dist
-	P6SM_VERSION=24 CPLUS_INCLUDE_PATH="$</include" LIBRARY_PATH="$</lib" \
-		make -s libp6-spidermonkey.so
 
 libp6-spidermonkey.so: p6-spidermonkey.cpp
-	g++ -Wall -Wshadow -pedantic $< -D__STDC_LIMIT_MACROS \
-		-DP6SM_VERSION="$$P6SM_VERSION" -shared -o $@ \
-		-fPIC -g -lmozjs-24 -lz -lpthread -ldl
+	P6SM_VERSION=24 CPLUS_INCLUDE_PATH=mozjs-24.2.0/js/src/dist/include \
+		LIBRARY_PATH=mozjs-24.2.0/js/src/dist/lib g++ -Wall -Wshadow \
+		-std=c++98 -pedantic -pedantic-errors $< -D__STDC_LIMIT_MACROS \
+		-DP6SM_VERSION=24 -shared -o $@ -fPIC -g -lmozjs-24 -lz -lpthread -ldl
 
 
 mozjs-24.2.0.tar.bz2:

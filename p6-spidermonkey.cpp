@@ -82,22 +82,22 @@ struct Value
 {
     JSContext*      context;
     JS::RootedValue rval;
-    char*           strval = NULL;
+    char*           strval;
 
 
-    Value(JSContext* cx) : context(cx), rval(cx) {}
+    Value(JSContext* cx) : context(cx), rval(cx), strval(NULL) {}
 
-    Value(JSContext* cx, bool b) : context(cx), rval(cx)
+    Value(JSContext* cx, bool b) : context(cx), rval(cx), strval(NULL)
     {
         rval.setBoolean(b);
     }
 
-    Value(JSContext* cx, double d) : context(cx), rval(cx)
+    Value(JSContext* cx, double d) : context(cx), rval(cx), strval(NULL)
     {
         rval.setDouble(d);
     }
 
-    Value(JSContext* cx, const char* s) : context(cx), rval(cx)
+    Value(JSContext* cx, const char* s) : context(cx), rval(cx), strval(NULL)
     {
         /* FIXME: does this leak the JSString? */
         rval.setString(JS_NewStringCopyZ(context, s));
@@ -215,12 +215,12 @@ struct Error
 
 struct Context
 {
-    JSContext       * context = NULL;
-    JS::RootedObject* global  = NULL;
+    JSContext       * context;
+    JS::RootedObject* global;
     Error             error;
 
 
-    Context(JSRuntime* rt, size_t stack_size)
+    Context(JSRuntime* rt, size_t stack_size) : context(NULL), global(NULL)
     {
         error.handled = true;
 
