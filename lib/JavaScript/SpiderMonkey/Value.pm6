@@ -10,6 +10,15 @@ constant \Value := JavaScript::SpiderMonkey::Value;
 sub p6sm_value_context(Value --> OpaquePointer)
     is native('libp6-spidermonkey') { * }
 
+sub p6sm_new_bool_value(OpaquePointer, int32 --> Value)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_new_num_value(OpaquePointer, num64 --> Value)
+    is native('libp6-spidermonkey') { * }
+
+sub p6sm_new_str_value(OpaquePointer, Str --> Value)
+    is native('libp6-spidermonkey') { * }
+
 sub p6sm_value_free(Value)
     is native('libp6-spidermonkey') { * }
 
@@ -43,7 +52,22 @@ sub p6sm_value_at_pos(Value, uint32 --> Value)
 
 our proto sub convert($v --> Value:D) { * }
 
-multi sub convert(Value:D $v) { $v }
+multi sub convert(  Value:D $v) { $v }
+multi sub convert(   Bool:D $v) { $v }
+multi sub convert(Stringy:D $v) { $v }
+multi sub convert(Numeric:D $v) { $v }
+
+sub to-value(OpaquePointer $context, $arg)
+{
+    given convert($arg)
+    {
+        when   Value:D { $_ }
+        when    Bool:D { p6sm_new_bool_value($context, $_ ?? 1 !! 0) }
+        when Numeric:D { p6sm_new_num_value($context, .Num) }
+        when Stringy:D { p6sm_new_str_value($context, .Str) }
+        default        { !!! }
+    }
+}
 
 
 method error()
@@ -92,8 +116,10 @@ method CALL-ME(Value:D: *@args)
 {
     fail "JavaScript doesn't support named arguments" if %_;
 
-    my $values = CArray[OpaquePointer].new;
-    -> $i, $arg { $values[$i] = convert($arg) } for kv @args;
+    my OpaquePointer:D       $context = p6sm_value_context(self);
+    my CArray[OpaquePointer] $values .= new;
+
+    for kv @args -> $i, $arg { $values[$i] = to-value($context, $arg) }
 
     return p6sm_value_call(self, @args.elems, $values) // fail self.error;
 }

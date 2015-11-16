@@ -87,7 +87,23 @@ public:
     char*           strval = NULL;
 
 
-    Value(JSContext* ctx) : context(ctx), rval(ctx) {}
+    Value(JSContext* cx) : context(cx), rval(cx) {}
+
+    Value(JSContext* cx, bool b) : context(cx), rval(cx)
+    {
+        rval.setBoolean(b);
+    }
+
+    Value(JSContext* cx, double d) : context(cx), rval(cx)
+    {
+        rval.setDouble(d);
+    }
+
+    Value(JSContext* cx, const char* s) : context(cx), rval(cx)
+    {
+        /* FIXME: does this leak the JSString? */
+        rval.setString(JS_NewStringCopyZ(context, s));
+    }
 
     ~Value()
     {
@@ -274,7 +290,7 @@ public:
     }
 
 
-    Value* call(Value* val, unsigned int argc, Value* argv)
+    Value* call(Value* val, unsigned int argc, Value** argv)
     {
         JSObject* obj = val->to_object("CALL-ME");
         if (!obj)
@@ -282,7 +298,7 @@ public:
 
         std::vector<JS::Value> args;
         for (unsigned int i = 0; i < argc; ++i)
-            args.push_back(argv[i].rval.get());
+            args.push_back(argv[i]->rval.get());
 
         Auto<Value> out(new Value(context));
         bool ok;
@@ -406,6 +422,31 @@ extern "C"
     }
 
 
+    Value* p6sm_new_bool_value(Context* cx, int b)
+    {
+        JSAutoCompartment ac(cx->context, *cx->global);
+        return new Value(cx->context, b != 0);
+    }
+
+    Value* p6sm_new_num_value(Context* cx, double d)
+    {
+        JSAutoCompartment ac(cx->context, *cx->global);
+        return new Value(cx->context, d);
+    }
+
+    Value* p6sm_new_str_value(Context* cx, const char* s)
+    {
+        JSAutoCompartment ac(cx->context, *cx->global);
+        return new Value(cx->context, s);
+    }
+
+
+
+    Context* p6sm_value_context(Value* val)
+    {
+        return Context::from_js(val->context);
+    }
+
     void p6sm_value_free(Value* val)
     {
         delete val;
@@ -443,7 +484,7 @@ extern "C"
         return 0;
     }
 
-    Value* p6sm_value_call(Value* val, unsigned int argc, Value* argv)
+    Value* p6sm_value_call(Value* val, unsigned int argc, Value** argv)
     {
         Context* cx = Context::from_js(val->context);
         return cx->call(val, argc, argv);
