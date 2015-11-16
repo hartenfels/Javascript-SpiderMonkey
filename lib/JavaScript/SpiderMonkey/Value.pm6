@@ -7,6 +7,9 @@ constant \Error := JavaScript::SpiderMonkey::Error;
 constant \Value := JavaScript::SpiderMonkey::Value;
 
 
+sub p6sm_value_context(Value --> OpaquePointer)
+    is native('libp6-spidermonkey') { * }
+
 sub p6sm_value_free(Value)
     is native('libp6-spidermonkey') { * }
 

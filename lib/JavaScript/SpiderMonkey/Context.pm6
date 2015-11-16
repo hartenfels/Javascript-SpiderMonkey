@@ -20,7 +20,7 @@ sub p6sm_context_free(Context)
 sub p6sm_context_error(Context --> Error)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_eval(Context, Str, Str, int32 --> Value)
+sub p6sm_context_eval(Context, Str, Str, int32 --> Value)
     is native('libp6-spidermonkey') { * }
 
 
@@ -41,7 +41,7 @@ method eval(Context:D: Str   $code,
                        int32 $line = 1
                        --> Value)
 {
-    return p6sm_eval(self, $code, $file, $line) // fail self.error;
+    return p6sm_context_eval(self, $code, $file, $line) // fail self.error;
 }
 
 method do(Context:D: Cool $path --> Value)

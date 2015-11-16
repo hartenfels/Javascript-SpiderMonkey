@@ -401,7 +401,7 @@ extern "C"
         return cx->get_error();
     }
 
-    Value* p6sm_eval(Context   * cx,
+    Value* p6sm_context_eval(Context   * cx,
                      const char* script,
                      const char* file,
                      int         line)
