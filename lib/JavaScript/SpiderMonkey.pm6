@@ -50,7 +50,7 @@ JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 =item1 Calling JavaScript from Perl6:
 =item2 → Call methods on JavaScript objects
 =item2 → Also allow calling things on the global object
-=item1 Call Perl6 from JavaScript somehow (ask on #perl6)
+=item1 Call Perl6 from JavaScript somehow (https://github.com/jnthn/zavolaj#function-arguments)
 =item1 Add documentation
 
 =head1 AUTHOR

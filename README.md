@@ -24,7 +24,7 @@ TODO
 
   * → Also allow calling things on the global object
 
-  * Call Perl6 from JavaScript somehow (ask on #perl6)
+  * Call Perl6 from JavaScript somehow (https://github.com/jnthn/zavolaj#function-arguments)
 
   * Add documentation
 
