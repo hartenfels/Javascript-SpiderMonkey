@@ -1,0 +1,6 @@
+sudo: false
+language: perl6
+install:
+    - make libp6-spidermonkey.so
+script:
+    - make
