@@ -1,3 +1,4 @@
+![Build Status](https://travis-ci.org/hartenfels/Javascript-SpiderMonkey.svg)](https://travis-ci.org/hartenfels/Javascript-SpiderMonkey)
 
 NAME
 ====

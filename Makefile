@@ -28,7 +28,7 @@ realclean: clean
 
 
 README.md: lib/JavaScript/SpiderMonkey.pm6
-	echo '![Build Status](https://travis-ci.org/hartenfels/Javascript-SpiderMonkey.svg)](https://travis-ci.org/hartenfels/Javascript-SpiderMonkey)'
+	echo '![Build Status](https://travis-ci.org/hartenfels/Javascript-SpiderMonkey.svg)](https://travis-ci.org/hartenfels/Javascript-SpiderMonkey)' \
 	                                      > $@
 	echo                                 >> $@
 	PERL6LIB=lib perl6 --doc=Markdown $< >> $@
