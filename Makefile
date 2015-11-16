@@ -34,4 +34,4 @@ README.md: lib/JavaScript/SpiderMonkey.pm6
 	PERL6LIB=lib perl6 --doc=Markdown $< >> $@
 
 
-.PHONY: test-mozjs24 lib-mozjs24 clean realclean
+.PHONY: test-mozjs24 clean realclean
