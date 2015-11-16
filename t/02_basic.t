@@ -8,6 +8,7 @@ is js-eval(q:to/JS/).type, 'object', 'evaling an object literal';
         seats  : "leather",
         plates : true,
         doors  : [1, 2.3],
+        "ℕℤℚℝ" : "林花謝了春紅",
     };
     JS
 
@@ -46,6 +47,13 @@ given $car<doors>
     }
 
     is .[2].type, 'undefined', 'referencing nonexistent array element';
+}
+
+
+given $car<ℕℤℚℝ>
+{
+    is .type, 'string', 'referencing unicode property';
+    is .Str,  '林花謝了春紅', 'unicode string has the right value';
 }
 
 

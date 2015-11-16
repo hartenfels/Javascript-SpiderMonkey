@@ -20,7 +20,7 @@ sub p6sm_context_free(Context)
 sub p6sm_context_error(Context --> Error)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_context_eval(Context, Str, Str, int32 --> Value)
+sub p6sm_context_eval(Context, Str is encoded('utf16'), Str, int32 --> Value)
     is native('libp6-spidermonkey') { * }
 
 

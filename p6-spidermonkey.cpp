@@ -1,5 +1,4 @@
 #include <jsapi.h>
-#include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -53,6 +52,14 @@ static JSBool dispatch(JSContext* context, unsigned int argc, JS::Value* vp)
 }
 
 
+static size_t utf16_strlen(const jschar* str)
+{
+    size_t len = 0;
+    while (*str++) ++len;
+    return len;
+}
+
+
 /* Simple auto pointer that calls `delete` on abnormal scope exit. */
 template <typename T> class Auto
 {
@@ -97,10 +104,10 @@ struct Value
         rval.setDouble(d);
     }
 
-    Value(JSContext* cx, const char* s) : context(cx), rval(cx), strval(NULL)
+    Value(JSContext* cx, const jschar* s) : context(cx), rval(cx), strval(NULL)
     {
         /* FIXME: does this leak the JSString? */
-        rval.setString(JS_NewStringCopyZ(context, s));
+        rval.setString(JS_NewUCStringCopyZ(context, s));
     }
 
     ~Value()
@@ -173,14 +180,15 @@ struct Value
     }
 
 
-    Value* at_key(const char* key)
+    Value* at_key(const jschar* key)
     {
         JSObject* obj = to_object("AT-KEY");
         if (!obj)
             return NULL;
 
         Auto<Value> out(new Value(context));
-        if (JS_GetProperty(context, obj, key, P6SM_ADDRESS(out->rval)))
+        if (JS_GetUCProperty(context, obj, key,
+            utf16_strlen(key), P6SM_ADDRESS(out->rval)))
             return out.ret();
 
         return NULL;
@@ -250,7 +258,6 @@ struct Context
 
             if (!JS_DefineFunction(context, *global, "doit", dispatch, 0, 0))
                 throw std::runtime_error("can't register dispatch function");
-
         }
     }
 
@@ -265,7 +272,7 @@ struct Context
     }
 
 
-    Value* eval(const char* script, const char* file, int line)
+    Value* eval(const jschar* script, const char* file, int line)
     {
         Auto<Value> val(new Value(context));
         bool ok;
@@ -273,13 +280,13 @@ struct Context
         {
             JSAutoCompartment ac(context, *global);
 #         if P6SM_VERSION < 38
-            ok = JS_EvaluateScript(context, *global,
+            ok = JS_EvaluateUCScript(context, *global,
 #         else
             JS::CompileOptions opts(context);
             opts.setFileAndLine(filename, lineno);
             ok = JS::Evaluate(context, *global, opts,
 #         endif
-                              script, std::strlen(script), file,
+                              script, utf16_strlen(script), file,
                               line, P6SM_ADDRESS(val->rval));
         }
 
@@ -409,10 +416,10 @@ extern "C"
         return cx->get_error();
     }
 
-    Value* p6sm_context_eval(Context   * cx,
-                     const char* script,
-                     const char* file,
-                     int         line)
+    Value* p6sm_context_eval(Context     * cx,
+                             const jschar* script,
+                             const   char* file,
+                             int           line)
     {
         return cx->eval(script, file, line);
     }
@@ -430,7 +437,7 @@ extern "C"
         return new Value(cx->context, d);
     }
 
-    Value* p6sm_new_str_value(Context* cx, const char* s)
+    Value* p6sm_new_str_value(Context* cx, const jschar* s)
     {
         JSAutoCompartment ac(cx->context, *cx->global);
         return new Value(cx->context, s);
@@ -491,7 +498,7 @@ extern "C"
         return val->accessible();
     }
 
-    Value* p6sm_value_at_key(Value* val, const char* key)
+    Value* p6sm_value_at_key(Value* val, const jschar* key)
     {
         return val->at_key(key);
     }

@@ -16,7 +16,7 @@ sub p6sm_new_bool_value(OpaquePointer, int32 --> Value)
 sub p6sm_new_num_value(OpaquePointer, num64 --> Value)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_new_str_value(OpaquePointer, Str --> Value)
+sub p6sm_new_str_value(OpaquePointer, Str is encoded('utf16') --> Value)
     is native('libp6-spidermonkey') { * }
 
 sub p6sm_value_free(Value)
@@ -43,7 +43,7 @@ sub p6sm_value_call(Value, uint32, CArray[OpaquePointer] --> Value)
 sub p6sm_value_accessible(Value --> int32)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_value_at_key(Value, Str --> Value)
+sub p6sm_value_at_key(Value, Str is encoded('utf16') --> Value)
     is native('libp6-spidermonkey') { * }
 
 sub p6sm_value_at_pos(Value, uint32 --> Value)
