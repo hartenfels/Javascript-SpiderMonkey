@@ -1,5 +1,5 @@
 test-mozjs24: libp6-spidermonkey.so
-	LD_LIBRARY_PATH=".:mozjs-24.2.0/js/src/dist/lib" PERL6LIB=lib prove -ve perl6
+	LD_LIBRARY_PATH='.:mozjs-24.2.0/js/src/dist/lib' PERL6LIB=lib prove -ve perl6
 
 
 libp6-spidermonkey.so: p6-spidermonkey.cpp
@@ -25,6 +25,10 @@ clean:
 
 realclean: clean
 	rm -rf mozjs-24.2.0 libp6-spidermonkey.so
+
+
+markdeep:
+	LD_LIBRARY_PATH='.:mozjs-24.2.0/js/src/dist/lib' PERL6LIB=lib examples/markdeep.pl6
 
 
 README.md: lib/JavaScript/SpiderMonkey.pm6
