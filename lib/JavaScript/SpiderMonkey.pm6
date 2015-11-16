@@ -48,7 +48,6 @@ JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 =item1 Write more tests
 =item1 Put this on TravisCI and test multiple SpiderMonkey versions
 =item1 Calling JavaScript from Perl6:
-=item2 → Convert Perl6 arguments to JavaScript values
 =item2 → Call methods on JavaScript objects
 =item2 → Also allow calling things on the global object
 =item1 Call Perl6 from JavaScript somehow (ask on #perl6)

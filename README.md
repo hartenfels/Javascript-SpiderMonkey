@@ -18,8 +18,6 @@ TODO
 
   * Calling JavaScript from Perl6:
 
-  * → Convert Perl6 arguments to JavaScript values
-
   * → Call methods on JavaScript objects
 
   * → Also allow calling things on the global object
