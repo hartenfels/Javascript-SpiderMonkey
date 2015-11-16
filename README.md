@@ -15,7 +15,7 @@ TODO
 
   * Write more tests
 
-  * Put this on TravisCI and test multiple SpiderMonkey versions
+  * Test multiple SpiderMonkey versions
 
   * Calling JavaScript from Perl6:
 

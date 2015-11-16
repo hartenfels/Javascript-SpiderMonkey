@@ -46,7 +46,7 @@ JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 =item1 Implement console.log and friends
 =item1 Use LibraryMake and compile this sanely
 =item1 Write more tests
-=item1 Put this on TravisCI and test multiple SpiderMonkey versions
+=item1 Test multiple SpiderMonkey versions
 =item1 Calling JavaScript from Perl6:
 =item2 → Call methods on JavaScript objects
 =item2 → Also allow calling things on the global object
