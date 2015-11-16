@@ -78,10 +78,8 @@ private:
 };
 
 
-class Value
+struct Value
 {
-public:
-
     JSContext*      context;
     JS::RootedValue rval;
     char*           strval = NULL;
@@ -215,9 +213,8 @@ struct Error
 };
 
 
-class Context
+struct Context
 {
-public:
     JSContext       * context = NULL;
     JS::RootedObject* global  = NULL;
     Error             error;
