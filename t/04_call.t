@@ -37,4 +37,30 @@ given $var(True)
 }
 
 
+my $obj = js-eval(q:to/JS/);
+    ({
+        thing : "nothing",
+        get   : function() { return this.thing; },
+        set   : function(t) { this.thing = t; return this; },
+    })
+    JS
+
+given $obj
+{
+    is .type,         'object',   'value is an object';
+    is .<get>.type,   'function', 'get is a function';
+    is .<set>.type,   'function', 'set is a function';
+    is .<thing>.type, 'string',   'attribute is a string';
+    is .<thing>.Str,  'nothing',  'attribute has the right value';
+
+    is .call('set', 123).type,   'object', 'calling set returns object';
+    is .<thing>.type, 'number',  'attribute now is a number';
+    is .<thing>.Num,  123,       'attribute has the right value';
+
+    my $get = .call('get');
+    is .<thing>.type, 'number', 'getting attribute';
+    is .<thing>.Num,  123,      'gotten attribute has the right value';
+}
+
+
 done-testing

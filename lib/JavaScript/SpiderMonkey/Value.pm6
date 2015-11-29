@@ -7,6 +7,9 @@ constant \Error := JavaScript::SpiderMonkey::Error;
 constant \Value := JavaScript::SpiderMonkey::Value;
 
 
+subset Identifier of Str; # TODO where /^ <[<:L>\$\_]> <[<:L>\$\_ 0..9]> $/;
+
+
 sub p6sm_value_context(Value --> OpaquePointer)
     is native('libp6-spidermonkey') { * }
 
@@ -37,7 +40,7 @@ sub p6sm_value_num(Value, num64 is rw --> int32)
 sub p6sm_value_bool(Value, int32 is rw --> int32)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_value_call(Value, uint32, CArray[OpaquePointer] --> Value)
+sub p6sm_value_call(Value, Value, uint32, CArray[OpaquePointer] --> Value)
     is native('libp6-spidermonkey') { * }
 
 sub p6sm_value_accessible(Value --> int32)
@@ -112,16 +115,19 @@ method gist(Value:D: --> Str)
 }
 
 
-method CALL-ME(Value:D: *@args)
+method CALL-ME(Value:D: *@args, Value:D :$this = self)
 {
-    fail "JavaScript doesn't support named arguments" if %_;
-
     my OpaquePointer:D       $context = p6sm_value_context(self);
     my CArray[OpaquePointer] $values .= new;
 
     for kv @args -> $i, $arg { $values[$i] = to-value($context, $arg) }
 
-    return p6sm_value_call(self, @args.elems, $values) // fail self.error;
+    return p6sm_value_call(self, $this, @args.elems, $values) // fail self.error;
+}
+
+method call(Value:D: Identifier $method, *@args)
+{
+    return self{$method}(|@args, :this(self));
 }
 
 

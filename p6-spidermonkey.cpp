@@ -294,9 +294,9 @@ struct Context
     }
 
 
-    Value* call(Value* val, unsigned int argc, Value** argv)
+    Value* call(Value* val, Value* self, unsigned int argc, Value** argv)
     {
-        JSObject* obj = val->to_object("CALL-ME");
+        JSObject* obj = self->to_object("CALL-ME");
         if (!obj)
             return NULL;
 
@@ -487,10 +487,13 @@ extern "C"
         return 0;
     }
 
-    Value* p6sm_value_call(Value* val, unsigned int argc, Value** argv)
+    Value* p6sm_value_call(Value*       val,
+                           Value*       self,
+                           unsigned int argc,
+                           Value**      argv)
     {
         Context* cx = Context::from_js(val->context);
-        return cx->call(val, argc, argv);
+        return cx->call(val, self, argc, argv);
     }
 
     int p6sm_value_accessible(Value* val)
