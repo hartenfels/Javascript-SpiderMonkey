@@ -60,6 +60,9 @@ given $obj
     my $get = .call('get');
     is .<thing>.type, 'number', 'getting attribute';
     is .<thing>.Num,  123,      'gotten attribute has the right value';
+
+    dies-ok { .call('nonexistent') }, 'calling nonexistent method fails';
+    dies-ok { .call('thing')       }, 'calling non-function fails';
 }
 
 

@@ -127,19 +127,25 @@ method CALL-ME(Value:D: *@args, Value:D :$this = self)
 
 method call(Value:D: Identifier $method, *@args)
 {
-    return self{$method}(|@args, :this(self));
+    my $val = self{$method};
+    given $val.type
+    {
+        fail   "No such method: '$method'" when 'undefined'; # TODO NoSuchMethodError?
+        return $val(|@args, :this(self))   when 'function';
+        fail   "Can't call a value of type '$_'"; # TODO TypeError?
+    }
 }
 
 
 method AT-KEY(Value:D: $key --> Value:D)
 {
-    PRE { p6sm_value_accessible(self) }
+    PRE { p6sm_value_accessible(self) } # TODO TypeError?
     return p6sm_value_at_key(self, ~$key) // fail self.error;
 }
 
 method AT-POS(Value:D: $key --> Value:D)
 {
-    PRE { p6sm_value_accessible(self) }
+    PRE { p6sm_value_accessible(self) } # TODO TypeError?
     return p6sm_value_at_pos(self, +$key) // fail self.error;
 }
 
