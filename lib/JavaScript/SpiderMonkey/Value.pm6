@@ -60,6 +60,49 @@ sub enc(Str $s)
 }
 
 
+class Object
+{
+    has Value $.js-val;
+
+    multi method new(Value:D $js-val) { self.bless(:$js-val) }
+
+    method AT-KEY(Object:D: $key)
+    {
+        my $v = p6sm_value_at_key($!js-val, |enc(~$key)) // fail $!js-val.error;
+        return $v.to-perl;
+    }
+
+    method AT-POS(Object:D: $key)
+    {
+        my $v = p6sm_value_at_pos($!js-val, +$key) // fail $!js-val.error;
+        return $v.to-perl;
+    }
+
+    method CALL-ME(Object:D: *@args, Object:D :$this = self)
+    {
+        my OpaquePointer:D       $context = p6sm_value_context($!js-val);
+        my CArray[OpaquePointer] $values .= new;
+
+        for kv @args -> $i, $arg { $values[$i] = to-value($context, $arg) }
+
+        my $v = p6sm_value_call($!js-val, $this.js-val, @args.elems, $values)
+                // fail $!js-val.error;
+        return $v.to-perl;
+    }
+
+    method call(Object:D: Identifier $method, *@args)
+    {
+        my $val = self{$method};
+        given $val.js-val.type
+        {
+            fail   "No such method: '$method'" when 'undefined'; # TODO NoSuchMethodError?
+            return $val(|@args, :this(self))   when 'function';
+            fail   "Can't call a value of type '$_'"; # TODO TypeError?
+        }
+    }
+}
+
+
 our proto sub convert($v --> Value:D) { * }
 
 multi sub convert(  Value:D $v) { $v }
@@ -110,50 +153,17 @@ method Bool(Value:D: --> Bool)
     fail self.error;
 }
 
-method gist(Value:D: --> Str)
+method to-perl(Value:D:)
 {
     given self.type
     {
-        return  ~self when 'string';
-        return ~+self when 'number';
-        return ~?self when 'boolean';
-        return "[$_]";
+        return Value              when 'undefined';
+        return self.Str           when 'string';
+        return self.Num           when 'number';
+        return self.Bool          when 'boolean';
+      # return Function.new(self) when 'function';
+        return   Object.new(self);
     }
-}
-
-
-method CALL-ME(Value:D: *@args, Value:D :$this = self)
-{
-    my OpaquePointer:D       $context = p6sm_value_context(self);
-    my CArray[OpaquePointer] $values .= new;
-
-    for kv @args -> $i, $arg { $values[$i] = to-value($context, $arg) }
-
-    return p6sm_value_call(self, $this, @args.elems, $values) // fail self.error;
-}
-
-method call(Value:D: Identifier $method, *@args)
-{
-    my $val = self{$method};
-    given $val.type
-    {
-        fail   "No such method: '$method'" when 'undefined'; # TODO NoSuchMethodError?
-        return $val(|@args, :this(self))   when 'function';
-        fail   "Can't call a value of type '$_'"; # TODO TypeError?
-    }
-}
-
-
-method AT-KEY(Value:D: $key --> Value:D)
-{
-    PRE { p6sm_value_accessible(self) } # TODO TypeError?
-    return p6sm_value_at_key(self, |enc(~$key)) // fail self.error;
-}
-
-method AT-POS(Value:D: $key --> Value:D)
-{
-    PRE { p6sm_value_accessible(self) } # TODO TypeError?
-    return p6sm_value_at_pos(self, +$key) // fail self.error;
 }
 
 

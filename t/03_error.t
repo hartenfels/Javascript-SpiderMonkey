@@ -32,14 +32,4 @@ lives-ok { js-eval('try { throw "catch me"; } catch (e) { }') },
 ok no-error, 'error is not set';
 
 
-throws-like { js-eval('')<key> }, X::Phaser::PrePost,
-            'at-key on undefined fails';
-
-throws-like { js-eval('1234')<key> }, X::Phaser::PrePost,
-            'at-key on non-object fails';
-
-throws-like { js-eval('null')<key> }, X::Phaser::PrePost,
-            'at-key on null fails';
-
-
 done-testing

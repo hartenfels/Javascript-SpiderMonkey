@@ -38,15 +38,15 @@ method error()
 
 method eval(Context:D: Str   $code,
                        Str   $file = 'eval',
-                       int32 $line = 1
-                       --> Value)
+                       int32 $line = 1)
 {
     my $b = $code.encode('UTF-16');
-    return p6sm_context_eval(self, $b, $b.elems, $file, $line)
-        // fail self.error;
+    my $v = p6sm_context_eval(self, $b, $b.elems, $file, $line)
+         // fail self.error;
+    return $v.to-perl;
 }
 
-method do(Context:D: Cool $path --> Value)
+method do(Context:D: Cool $path)
 {
     return self.eval(slurp($path), $path);
 }

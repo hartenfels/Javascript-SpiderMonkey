@@ -3,7 +3,7 @@ use Test;
 use JavaScript::SpiderMonkey;
 
 
-is js-eval(q:to/JS/).type, 'object', 'evaling an object literal';
+ok js-eval(q:to/JS/) ~~ JavaScript::SpiderMonkey::Value::Object, 'evaling an object';
     car = {
         seats  : "leather",
         plates : true,
@@ -13,52 +13,28 @@ is js-eval(q:to/JS/).type, 'object', 'evaling an object literal';
     JS
 
 my $car = js-eval('car');
-is $car.type, 'object', 'referencing evaled object';
+ok $car ~~ JavaScript::SpiderMonkey::Value::Object, 'referencing evaled object';
 
 
-given $car<seats>
-{
-    is .type, 'string',  'referencing string property';
-    is .Str,  'leather', 'string property has right content';
-}
-
-
-given $car<plates>
-{
-    is .type, 'boolean', 'referencing boolean property';
-    is .Bool,  True,     'boolean property has right content';
-}
+is-deeply $car<seats>,  'leather', 'referencing string property';
+is-deeply $car<plates>,  True,     'referencing boolean property';
 
 
 given $car<doors>
 {
-    is .type, 'object', 'referencing array property';
+    ok $_ ~~ JavaScript::SpiderMonkey::Value::Object, 'referencing array property';
 
-    given .[0]
-    {
-        is .type, 'number', 'referencing number in array';
-        cmp-ok .Num, '==', 1, 'number has right content';
-    }
-
-    given .[1]
-    {
-        is .type, 'number', 'another number in array';
-        cmp-ok .Num, '==', 2.3, 'also has right content';
-    }
-
-    is .[2].type, 'undefined', 'referencing nonexistent array element';
+    is-deeply $_[0], 1.0e0, 'referencing number in array';
+    is-deeply $_[1], 2.3e0, 'another number in array';
+    nok defined($_[2]),     'referencing nonexistent array element';
 }
 
 
-given $car<ℕℤℚℝ>
-{
-    is .type, 'string', 'referencing unicode property';
-    is .Str,  '林花謝了春紅', 'unicode string has the right value';
-}
+is-deeply $car<ℕℤℚℝ>, '林花謝了春紅', 'unicode property and string';
 
 
-is $car<nonexistent>.type, 'undefined', 'referencing nonexistent object key';
-is $car[0].type, 'undefined', 'referencing array element on non-array';
+nok defined($car<nonexistent>), 'referencing nonexistent object key';
+nok defined($car[0]),           'referencing array element on non-array';
 
 
 done-testing
