@@ -19,7 +19,7 @@ sub p6sm_new_bool_value(OpaquePointer, int32 --> Value)
 sub p6sm_new_num_value(OpaquePointer, num64 --> Value)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_new_str_value(OpaquePointer, Str is encoded('utf16') --> Value)
+sub p6sm_new_str_value(OpaquePointer, Buf, uint32 --> Value)
     is native('libp6-spidermonkey') { * }
 
 sub p6sm_value_free(Value)
@@ -46,11 +46,18 @@ sub p6sm_value_call(Value, Value, uint32, CArray[OpaquePointer] --> Value)
 sub p6sm_value_accessible(Value --> int32)
     is native('libp6-spidermonkey') { * }
 
-sub p6sm_value_at_key(Value, Str is encoded('utf16') --> Value)
+sub p6sm_value_at_key(Value, Buf, uint32 --> Value)
     is native('libp6-spidermonkey') { * }
 
 sub p6sm_value_at_pos(Value, uint32 --> Value)
     is native('libp6-spidermonkey') { * }
+
+
+sub enc(Str $s)
+{
+    my $b = $s.encode('UTF-16');
+    return $b, $b.elems;
+}
 
 
 our proto sub convert($v --> Value:D) { * }
@@ -67,7 +74,7 @@ sub to-value(OpaquePointer $context, $arg)
         when   Value:D { $_ }
         when    Bool:D { p6sm_new_bool_value($context, $_ ?? 1 !! 0) }
         when Numeric:D { p6sm_new_num_value($context, .Num) }
-        when Stringy:D { p6sm_new_str_value($context, .Str) }
+        when Stringy:D { p6sm_new_str_value($context, |enc(.Str)) }
         default        { !!! }
     }
 }
@@ -140,7 +147,7 @@ method call(Value:D: Identifier $method, *@args)
 method AT-KEY(Value:D: $key --> Value:D)
 {
     PRE { p6sm_value_accessible(self) } # TODO TypeError?
-    return p6sm_value_at_key(self, ~$key) // fail self.error;
+    return p6sm_value_at_key(self, |enc(~$key)) // fail self.error;
 }
 
 method AT-POS(Value:D: $key --> Value:D)
