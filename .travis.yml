@@ -1,6 +1,4 @@
-sudo: false
 language: perl6
-install:
-    - make mozjs-24.2.0/js/src/dist
-script:
-    - make test-mozjs24
+before_install:
+    - sudo apt-get update  -qq
+    - sudo apt-get install -qq libmozjs-24-dev
