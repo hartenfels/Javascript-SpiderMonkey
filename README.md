@@ -5,6 +5,20 @@ NAME
 
 JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 
+SYNOPSIS
+========
+
+This is still really hard in development you don't even know, so this interface is still in flux.
+
+    use JavaScript::SpiderMonkey;
+
+    my $thing = js-eval('({
+        add : function(a, b) { return a + b; },
+    })')
+
+    say $thing.add( 1,   2 ); # 3
+    say $thing.add('1', '2'); # 12
+
 TODO
 ====
 
@@ -20,9 +34,11 @@ TODO
 
   * Calling JavaScript from Perl6:
 
-  * → Call methods on JavaScript objects
-
   * → Also allow calling things on the global object
+
+  * → Convert hashes and arrays
+
+  * Writing to JavaScript object and array elements
 
   * Call Perl6 from JavaScript somehow (https://github.com/jnthn/zavolaj#function-arguments)
 

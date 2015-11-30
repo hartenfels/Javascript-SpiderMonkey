@@ -40,6 +40,20 @@ our sub js-do(Cool $path) is export
 
 JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 
+=head1 SYNOPSIS
+
+This is still really hard in development you don't even know, so this interface
+is still in flux.
+
+    use JavaScript::SpiderMonkey;
+
+    my $thing = js-eval('({
+        add : function(a, b) { return a + b; },
+    })')
+
+    say $thing.add( 1,   2 ); # 3
+    say $thing.add('1', '2'); # 12
+
 =head1 TODO
 
 =item1 Nicer errors
@@ -48,8 +62,9 @@ JavaScript::SpiderMonkey - glue for Mozilla's JavaScript interpreter
 =item1 Write more tests
 =item1 Test multiple SpiderMonkey versions
 =item1 Calling JavaScript from Perl6:
-=item2 → Call methods on JavaScript objects
 =item2 → Also allow calling things on the global object
+=item2 → Convert hashes and arrays
+=item1 Writing to JavaScript object and array elements
 =item1 Call Perl6 from JavaScript somehow (https://github.com/jnthn/zavolaj#function-arguments)
 =item1 Add documentation
 
