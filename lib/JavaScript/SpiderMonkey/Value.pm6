@@ -92,7 +92,7 @@ class Object
         return $v.to-perl;
     }
 
-    method call-func(Object:D: Identifier $method, *@args)
+    method call-func(Object:D: Str $method, *@args)
     {
         my $val = self{$method};
         given $val.js-val.type

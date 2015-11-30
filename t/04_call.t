@@ -38,13 +38,11 @@ given $obj
     dies-ok { .call-func('nonexistent') }, 'calling nonexistent method fails';
     dies-ok { .call-func('thing')       }, 'calling non-function fails';
 
-    # These return X::AdHoc instead of X::TypeCheck::Binding, see perl #126763
-    throws-like { .call-func('')         }, X::AdHoc, 'calling empty string fails';
-    throws-like { .call-func('no-kebap') }, X::AdHoc, 'calling kebap-case fails';
-    throws-like { .call-func('1digit')   }, X::AdHoc, 'calling starting digit fails';
-
     is .set(True).js-val.type, 'object', 'set with FALLBACK';
     is-deeply .get, True, 'get with FALLBACK';
+
+    # This returns X::AdHoc instead of X::TypeCheck::Binding, see perl #126763
+    throws-like { .no-kebap }, X::AdHoc, 'calling kebap-case fails';
 }
 
 done-testing
