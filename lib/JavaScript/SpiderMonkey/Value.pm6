@@ -113,10 +113,11 @@ class Object
 
 our proto sub convert($v --> Value:D) { * }
 
-multi sub convert(  Value:D $v) { $v }
-multi sub convert(   Bool:D $v) { $v }
-multi sub convert(Stringy:D $v) { $v }
-multi sub convert(Numeric:D $v) { $v }
+multi sub convert(  Value:D $v) { $v        }
+multi sub convert( Object:D $v) { $v.js-val }
+multi sub convert(   Bool:D $v) { $v        }
+multi sub convert(Stringy:D $v) { $v        }
+multi sub convert(Numeric:D $v) { $v        }
 
 sub to-value(OpaquePointer $context, $arg)
 {

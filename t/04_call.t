@@ -38,8 +38,8 @@ given $obj
     dies-ok { .call-func('nonexistent') }, 'calling nonexistent method fails';
     dies-ok { .call-func('thing')       }, 'calling non-function fails';
 
-    is .set(True).js-val.type, 'object', 'set with FALLBACK';
-    is-deeply .get, True, 'get with FALLBACK';
+    is .set($_).js-val.type, 'object', 'set with FALLBACK';
+    is-deeply .get.js-val, $_.js-val, 'get with FALLBACK';
 
     # This returns X::AdHoc instead of X::TypeCheck::Binding, see perl #126763
     throws-like { .no-kebap }, X::AdHoc, 'calling kebap-case fails';
