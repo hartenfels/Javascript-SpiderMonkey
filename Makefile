@@ -3,8 +3,7 @@ test-mozjs24: libp6-spidermonkey.so
 
 
 libp6-spidermonkey.so: p6-spidermonkey.cpp
-	CPLUS_INCLUDE_PATH=/usr/include/mozjs-24 \
-		g++ -Wall -Wshadow -std=c++98 -pedantic -pedantic-errors $< \
+	g++ -Wall -Wshadow -std=c++98 -pedantic -pedantic-errors $< \
 		-D__STDC_LIMIT_MACROS -DP6SM_VERSION=24 -shared -o $@ -fPIC \
 		-g -lmozjs-24 -lz -lpthread -ldl
 
