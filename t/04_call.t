@@ -30,19 +30,21 @@ given $obj
     is .<set>.js-val.type, 'function', 'set is a function';
     is-deeply .<thing>,    'nothing',  'attribute has the right value';
 
-    is .call('set', 123).js-val.type, 'object', 'calling set returns object';
+    is .call-func('set', 123).js-val.type, 'object', 'calling set returns object';
     is-deeply .<thing>.Num, 123e0, 'attribute has the right value';
 
-    is-deeply .call('get'), 123e0, 'getting attribute returns right value';
+    is-deeply .call-func('get'), 123e0, 'getting attribute returns right value';
 
-    dies-ok { .call('nonexistent') }, 'calling nonexistent method fails';
-    dies-ok { .call('thing')       }, 'calling non-function fails';
+    dies-ok { .call-func('nonexistent') }, 'calling nonexistent method fails';
+    dies-ok { .call-func('thing')       }, 'calling non-function fails';
 
     # These return X::AdHoc instead of X::TypeCheck::Binding, see perl #126763
-    throws-like { .call('')         }, X::AdHoc, 'calling empty string fails';
-    throws-like { .call('no-kebap') }, X::AdHoc, 'calling kebap-case fails';
-    throws-like { .call('1digit')   }, X::AdHoc, 'calling starting digit fails';
-}
+    throws-like { .call-func('')         }, X::AdHoc, 'calling empty string fails';
+    throws-like { .call-func('no-kebap') }, X::AdHoc, 'calling kebap-case fails';
+    throws-like { .call-func('1digit')   }, X::AdHoc, 'calling starting digit fails';
 
+    is .set(True).js-val.type, 'object', 'set with FALLBACK';
+    is-deeply .get, True, 'get with FALLBACK';
+}
 
 done-testing

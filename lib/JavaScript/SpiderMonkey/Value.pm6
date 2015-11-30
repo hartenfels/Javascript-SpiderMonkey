@@ -66,6 +66,7 @@ class Object
 
     multi method new(Value:D $js-val) { self.bless(:$js-val) }
 
+
     method AT-KEY(Object:D: $key)
     {
         my $v = p6sm_value_at_key($!js-val, |enc(~$key)) // fail $!js-val.error;
@@ -77,6 +78,7 @@ class Object
         my $v = p6sm_value_at_pos($!js-val, +$key) // fail $!js-val.error;
         return $v.to-perl;
     }
+
 
     method CALL-ME(Object:D: *@args, Object:D :$this = self)
     {
@@ -90,7 +92,7 @@ class Object
         return $v.to-perl;
     }
 
-    method call(Object:D: Identifier $method, *@args)
+    method call-func(Object:D: Identifier $method, *@args)
     {
         my $val = self{$method};
         given $val.js-val.type
@@ -100,6 +102,12 @@ class Object
             fail   "Can't call a value of type '$_'"; # TODO TypeError?
         }
     }
+
+    method FALLBACK(Object:D: Identifier $method, *@args)
+    {
+        return self.call-func($method, @args);
+    }
+
 }
 
 
