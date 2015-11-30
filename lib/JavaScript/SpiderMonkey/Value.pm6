@@ -7,7 +7,7 @@ constant \Error := JavaScript::SpiderMonkey::Error;
 constant \Value := JavaScript::SpiderMonkey::Value;
 
 
-subset Identifier of Str; # TODO where /^ <[<:L>\$\_]> <[<:L>\$\_ 0..9]> $/;
+subset Identifier of Str where /^ [<:L>||<[\_\$]>] [<:L>||<[\_\$ 0..9]>]* $/;
 
 
 sub p6sm_value_context(Value --> OpaquePointer)

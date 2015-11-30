@@ -63,6 +63,11 @@ given $obj
 
     dies-ok { .call('nonexistent') }, 'calling nonexistent method fails';
     dies-ok { .call('thing')       }, 'calling non-function fails';
+
+    # These return X::AdHoc instead of X::TypeCheck::Binding, see perl #126763
+    throws-like { .call('')         }, X::AdHoc, 'calling empty string fails';
+    throws-like { .call('no-kebap') }, X::AdHoc, 'calling kebap-case fails';
+    throws-like { .call('1digit')   }, X::AdHoc, 'calling starting digit fails';
 }
 
 
